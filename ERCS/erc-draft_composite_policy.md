@@ -41,7 +41,7 @@ Artifacts in this proposal are implemented as smart contracts, allowing them to 
 
 This construction system - which allows for modifying components and dynamically supplying them with data - is defined by this standard.
 
-### Interfaces
+### Artifact Interfaces
 
 Artifacts may implement any logic but MUST adhere to a standard interface that allows the policy controller to integrate them correctly and ensure consistent data flow:
 
@@ -66,6 +66,32 @@ interface IArbitraryDataArtifact {
 ```
 
 Other interfaces are more implicit, following conventions and approaches explained in the Rationale section.
+
+### Policy Handler
+
+The policy handler serves as the orchestration component for artifact execution. While implementations may vary, this standard RECOMMENDS a Directed Acyclic Graph (DAG) approach as the most efficient architecture.
+
+During policy initialization, the handler constructs a DAG from the specified artifacts and their configurations. Each artifact instance is initialized as needed during this phase, ensuring proper setup before policy evaluation.
+
+When policy evaluation is requested, the handler:
+1. Receives the root node identifier (referencing the starting artifact instance in the policy)
+2. Collects the necessary variables for evaluation
+3. Initiates a recursive traversal of the graph
+
+For each node in the traversal, the handler:
+1. Calls the target artifact using the standard interface
+2. Supplies it with the appropriate variables and results from previously calculated nodes
+3. Collects the result for use by subsequent nodes
+
+This orchestration allows artifacts to exchange data without direct knowledge of each other. After complete traversal, the root node contains the result of the entire policy evaluation.
+
+To facilitate interaction with off-chain systems, the handler SHOULD provide a method to retrieve information about all variables used by all artifacts in the policy:
+
+```solidity
+function getVariablesList() public view returns (NamedTypedVariables[] memory) {
+    return Utils.getVariablesListInternal(graph.getNodes());
+}
+```
 
 ## Rationale
 
@@ -142,6 +168,25 @@ function getExecDescriptor()
 
 This separation of concerns allows both human users and automated systems to properly interact with artifacts, supporting both manual integration and programmatic composition of policies.
 
+### Handler Architecture Considerations
+
+The graph-based approach is optimal for artifact orchestration, offering recursive traversal capabilities, memory efficiency, and support for dynamic modifications. Artifacts function naturally as node logic within this structure, with the handler defining additional node properties and relationships.
+
+A key responsibility of the handler is parameter management. The handler determines:
+- Which parameters are constant within the policy
+- Which parameters are supplied as external variables
+- Which parameters derive from the computation results of other nodes
+
+These determinations are made during policy creation and dynamically managed by the handler during execution. Implementation details regarding interface extensions and argument formatting remain at the discretion of the handler developer.
+
+The graph-based architecture imposes several important constraints:
+
+1. **Acyclicity requirement**: Policies MUST NOT contain cycles. Nodes cannot refer to each other cyclically in any form, including self-references and transitive references.
+
+2. **EVM call stack limitations**: Since each node traversal involves a contract call to an artifact, policy size is bounded by Ethereum Virtual Machine call stack limits.
+
+3. **Connectivity requirement**: Only nodes connected (directly or indirectly) to the root node will be traversed during evaluation. Disconnected nodes or subgraphs will be ignored during traversal, though their presence does not cause policy failures.
+
 ## Test Cases
 
 Test cases for this standard are included in the reference implementation repository. They demonstrate:
@@ -156,7 +201,7 @@ Test cases for this standard are included in the reference implementation reposi
 
 No backward compatibility issues have been identified.
 
-This standard may appear associated with to [ERC-2746](./eip-2746.md), but they are not intended as replacements for each other. While ERC-2746 describes a similar concept of rule perception, the current standard presents a fundamentally different approach to implementing a rule engine on-chain, with entirely distinct interfaces and mechanisms.
+This standard may appear associated with [ERC-2746](./eip-2746.md), but they are not intended as replacements for each other. While ERC-2746 describes a similar concept of rule perception, the current standard presents a fundamentally different approach to implementing a rule engine on-chain, with entirely distinct interfaces and mechanisms.
 
 ## Reference Implementation
 
