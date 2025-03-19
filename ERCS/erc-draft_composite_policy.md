@@ -7,19 +7,22 @@ status: Draft
 type: Standards Track
 category: ERC
 created: 2025-03-14
-requires: 1167 ??
+requires: 1167 ?
 ---
 
 ## Abstract
 
-An onchain policy engine proposal with simple yet efficient approach. Policies are split into simple rules - artifacts - and then represented onchain as a DAG. The DAG is then recursively evaluated starting from a top-tier artifact (root node, effectively making it a tree). The evaluation result can be treated as a final policy evaluation result.
-This proposal describes approaches, standard interfaces and conventional traits, facilitating policies and artifacts interoperability for common usage.
+This proposal presents an efficient on-chain policy engine approach. Policies are decomposed into simple rules, called artifacts, and represented as a directed acyclic graph (DAG). The DAG is recursively evaluated starting from a top-tier artifact (root node), effectively processing it as a tree. The evaluation result serves as the final policy evaluation outcome.
+
+The standard defines approaches, interfaces, and conventional traits that facilitate interoperability between policies and artifacts for common usage scenarios.
 
 ## Motivation
 
-There are a large number of software systems that rely on smart contracts, from simple vaults to decentralized exchanges and oracles. All of these systems should be regulated in one way or another - limiting the right of an administrator to use them, restricting the methods allowed, limiting the amount of withdrawals. Restrictions, rules, and prohibitions are all essential parts of any financial (and other) system.
-Current approaches to smart contract programming allow creating simple rules in the form of algorithmic constraints and modifiers. But more complex rules - dynamic, composite, different depending on different conditions - become more difficult to create as the number of inputs to these rules grows. Moreover, some problems - for example, interactive composition of simple rules - cannot be solved with current methods due to the lack of Reflection. Reusing complex rules, changing them on the fly, and grouping them is also out of the question.
-The proposed approach aims to solve this problem without changing any of the network layers.
+Many software systems rely on smart contracts, ranging from simple vaults to decentralized exchanges and oracles. All such systems require regulation in various forms - limiting administrative privileges, restricting allowed methods, capping withdrawal amounts. Restrictions, rules, and prohibitions constitute essential components of any financial (or other) system.
+
+Current smart contract programming approaches allow for the creation of simple rules through algorithmic constraints and modifiers. However, more complex rules - dynamic, composite, or conditional - become increasingly difficult to implement as the number of inputs grows. Moreover, certain problems, such as interactive composition of simple rules, cannot be addressed with current methods due to the lack of reflection capabilities in smart contract platforms. Reusing complex rules, modifying them dynamically, and hierarchical organization are similarly challenging.
+
+This proposal aims to solve these problems without requiring modifications to any network layers.
 
 ## Specification
 
@@ -27,20 +30,20 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD", "S
 
 ### Definitions
 
-**Policy** - a rule or set of rules combined in such a way as to be perceived as one coherent rule. Policy is a term that is clearly defined only in connection with the action to which it applies. For example, a particular bank transfer must always comply with the bank's policy for that type of transfer. This particular policy may be a single rule or a composite of several. Moreover, a policy may be a composite of several other policies, which in this case are perceived as rules.
-So, to summarize, a policy is a rule for a specific transaction, no matter how complex or simple.
+**Policy** - A rule or set of rules combined to form one coherent rule. A policy is defined in relation to the action to which it applies. For example, a bank transfer must comply with the bank's policy for that specific transfer type. This policy may be a single rule or a composite of several rules. Furthermore, a policy may be composed of several other policies, which in this context are treated as rules.
+To summarize, a policy is a rule governing a specific transaction, regardless of its complexity.
 
-In this context, the elementary particle that makes up a policy is called an **artifact**. An artifact - is also a rule, but it is indivisible within the policy. Inside, an artifact can be as complex or as simple as its creator wants it to be.
+In this standard, the fundamental component of a policy is called an **artifact**. An artifact is also a rule, but it is atomic within the policy context. Internally, an artifact can be as simple or complex as its creator requires.
 
-For example, the policy “must be over 21 years old and a citizen” consists of the artifacts “must be over 21 years old” and “must be a citizen”. Obviously, it is possible to define the artifact “to be over 21 and to be a citizen” if desired, but it is recommended to choose a more natural granularity.
-Moreover, artifacts in the context of the current proposal are arbitrary contracts, so they can be not only rules, but also arbitrary transactions. It follows that “should be” and “and” are also artifacts.
-From all of the above, it turns out that politics is a constructor consisting of simple blocks - artifacts.
+For example, a policy stating "must be over 21 years old and a citizen" comprises two artifacts: "must be over 21 years old" and "must be a citizen". While one could define a single artifact encompassing both requirements, it is generally recommended to maintain granularity that reflects natural divisions of logic.
 
-The technical details of such a constructor - one that allows you to change blocks and dynamically supply them with data - are defined by this standard.
+Artifacts in this proposal are implemented as smart contracts, allowing them to represent not only rules but also arbitrary transactions. Consequently, logical operators like "should be" and "and" are also implemented as artifacts.
+
+This construction system - which allows for modifying components and dynamically supplying them with data - is defined by this standard.
 
 ### Interfaces
 
-Artifacts can implement any logic, but they must adhere to a standard interface that will allow the policy controller to integrate them correctly and ensure an unmodified data flow between them:
+Artifacts may implement any logic but MUST adhere to a standard interface that allows the policy controller to integrate them correctly and ensure consistent data flow:
 
 ```solidity
 interface IArbitraryDataArtifact {
@@ -59,106 +62,127 @@ interface IArbitraryDataArtifact {
         returns (string[] memory argsNames, string[] memory argsTypes);
 
     function description() external pure returns (string memory desc);
-
-  }
+}
 ```
 
-Other interfaces are more implicit, being conventions and approaches reasoned and explained in Rationale.
+Other interfaces are more implicit, following conventions and approaches explained in the Rationale section.
 
 ## Rationale
 
-Since rules often require heterogeneous data (both existing on the blockchain and purely off-chain), the system must be well suited for integration from both off-chain and on-chain sides. This integrability is ensured by the architecture of the artifact handler, which is able to properly arrange artifacts and data, resulting in a correctly computed policy. In fact, an instance of the handler is an instance of the policy.
+Since rules often require heterogeneous data (both on-chain and off-chain), the system must facilitate integration from both sources. This integration is achieved through the artifact handler architecture, which properly organizes artifacts and data to compute policies correctly. Essentially, an instance of the handler represents an instance of the policy.
 
 ### All bytes
 
-Since artifacts are contracts, their method arguments must be clearly typed. On the other hand, the handler cannot handle all types in a uniform manner. To avoid massive ad hoc duplications, it is suggested that all types be encoded into bytes before being supplied to and returned from artifacts.
-This means that each variable or result of an artifact can be perceived as bytes by both the handler and the likely offline code, which makes life much easier
+Artifacts, being contracts, require clearly typed method arguments. However, the handler cannot process all types uniformly. To avoid extensive ad hoc duplications, all types SHOULD be encoded into bytes before being supplied to and returned from artifacts.
+
+This approach allows each variable or result of an artifact to be processed as bytes by both the handler and off-chain code, significantly simplifying implementation.
 
 ### Artifact dataflow traits
 
-Artifacts have two main methods - init and exec.
-The init method is called once at the stage of policy initialization by the handler. Since artifacts can be reused across multiple policies, each new policy makes its own copy of each artifact that needs init using erc1167. This ensures that the artifact has a clean state.
-Both init and exec methods take arguments (exec also has a return value). According to the all bytes approach, these arguments are encoded as bytes. But they are serialized differently: exec arguments are an array of byte-encoded values, while init arguments are byte-encoded values.
+Artifacts have two primary methods: `init` and `exec`.
+
+The `init` method is called once during policy initialization by the handler. Since artifacts can be reused across multiple policies, each new policy creates its own copy of each artifact requiring initialization using some copying strategy (e.g. [ERC-1167](./eip-1167.md)). This ensures that each artifact instance maintains a clean state.
+
+Both `init` and `exec` methods accept arguments (with `exec` also returning a value). Following the "all bytes" approach, these arguments are encoded as bytes. However, their serialization differs: `exec` arguments are an array of byte-encoded values, while `init` arguments are directly byte-encoded values:
+
+```
 exec args = [abi.encode(uint256), abi.encode(string)]
 init args = abi.encode(uint256, string)
+```
 
-These values should be decoded accordingly:
+These values SHOULD be decoded accordingly:
 
 ```solidity
 function exec(bytes[] memory data) external pure override returns (bytes memory) {
-        uint256 argA = abi.decode(data[0], (uint256));
-        string memory argB = abi.decode(data[1], (string));
+    uint256 argA = abi.decode(data[0], (uint256));
+    string memory argB = abi.decode(data[1], (string));
 
-        return abi.encode(doSomething(argA, argB));
-    } 
+    return abi.encode(doSomething(argA, argB));
+} 
 ```
 
 ```solidity
 function init(bytes memory data) external override {
-        (bool init1, address init2, bytes memory init3, uint256 init4, string memory init5) = abi
-            .decode(data, (bool, address, bytes, uint256, string));
+    (bool init1, address init2, bytes memory init3, uint256 init4, string memory init5) = abi
+        .decode(data, (bool, address, bytes, uint256, string));
 }
 ```
 
-### External complience traits
+### External compliance traits
 
-Artifacts should speak for themselves.
-The getExecDescriptor method should return an array of signatures of the exec method parameters and a description of the return value. The getInitDescriptor method should return an array of signatures of the init method parameters.
+Artifacts SHOULD be self-descriptive to facilitate integration.
 
-```solidity
-function getExecDescriptor()
-        public
-        pure
-        override
-        returns (string[] memory argsNames, string[] memory argsTypes, string memory returnType)
-    {
-        uint256 argsLength = 2;
-        argsNames = new string[](argsLength);
-        argsNames[0] = "argA";
-        argsNames[1] = "argB";
-        argsTypes = new string[](argsLength);
-        argsTypes[0] = "uint256";
-        argsTypes[1] = "uint256";
-        returnType = "bool";
-    }
-
-```
-
-The description method returns a constant string that describes the logic of the artifact - what it does, whether it is statefull, where it can be used, and so on. The description format is not strictly defined and is intended for human perception.
-The getExecDescriptor and getInitDescriptor methods provide information for automated systems that automatically encode arguments for further policy computation. An example of such a system can be found in the reference implementation.
+The `description` method returns a human-readable string describing the artifact's logic - its purpose, state characteristics, applicable contexts, and other relevant information. While not strictly formatted, this description helps developers and users understand the artifact's behavior and intended use:
 
 ```solidity
 function description() external pure override returns (string memory desc) {
-        desc = "Stateful artifact used to validate signatures from a predefined list of approvers. Requires a quorum of valid signatures to approve. First parameter - messageHash packed as bytes, second one - signatures packed as bytes array. Returns bool representing whether enough valid signatures were provided.";
-    }
+    desc = "Stateful artifact used to validate signatures from a predefined list of approvers. Requires a quorum of valid signatures to approve. First parameter - messageHash packed as bytes, second one - signatures packed as bytes array. Returns bool representing whether enough valid signatures were provided.";
+}
 ```
 
+In contrast, the `getExecDescriptor` and `getInitDescriptor` methods are designed for automated systems that need to encode arguments for policy computation. These methods provide structured metadata about parameter names, types, and return values in a machine-readable format:
+
+```solidity
+function getExecDescriptor()
+    public
+    pure
+    override
+    returns (string[] memory argsNames, string[] memory argsTypes, string memory returnType)
+{
+    uint256 argsLength = 2;
+    argsNames = new string[](argsLength);
+    argsNames[0] = "argA";
+    argsNames[1] = "argB";
+    argsTypes = new string[](argsLength);
+    argsTypes[0] = "uint256";
+    argsTypes[1] = "uint256";
+    returnType = "bool";
+}
+```
+
+This separation of concerns allows both human users and automated systems to properly interact with artifacts, supporting both manual integration and programmatic composition of policies.
+
+## Test Cases
+
+Test cases for this standard are included in the reference implementation repository. They demonstrate:
+
+1. Creation and initialization of artifacts
+2. Construction of policies from multiple artifacts
+3. Evaluation of policies with various input data
+4. Reuse of artifacts across different policies
+5. Implementation of common policy patterns and composite structures
 
 ## Backwards Compatibility
 
-No backward compatibility issues found.
-One may associate the current approach with erc-2746, but they are not intended to be a replacement for each other or related standards, so backward compatibility is not provided.
-Even though erc-2746 describes a similar concept of rule perception, the current standard declares a completely different approach to implementing a rule engine on the on-chain, and interfaces have no similarities.
+No backward compatibility issues have been identified.
+
+This standard may appear associated with to [ERC-2746](./eip-2746.md), but they are not intended as replacements for each other. While ERC-2746 describes a similar concept of rule perception, the current standard presents a fundamentally different approach to implementing a rule engine on-chain, with entirely distinct interfaces and mechanisms.
 
 ## Reference Implementation
 
-See https://github.com/GuardianLabs/policy-sdk/tree/dev/packages/contracts/contracts (move to assets?)
+A reference implementation is available in the following repository:
+https://github.com/GuardianLabs/policy-sdk/tree/dev/packages/contracts/contracts
 
-<!--
-  This section is optional.
+The reference implementation includes:
+- Core artifact interfaces
+- Base artifact implementations
+- Policy handler contract
+- Example artifacts for common use cases
+- Test suite demonstrating policy composition and evaluation
 
-  The Reference Implementation section should include a minimal implementation that assists in understanding or implementing this specification. It should not include project build files. The reference implementation is not a replacement for the Specification section, and the proposal should still be understandable without it.
-  If the reference implementation is too large to reasonably be included inline, then consider adding it as one or more files in `../assets/eip-####/`. External links will not be allowed.
-
-  TODO: Remove this comment before submitting
--->
+The implementation demonstrates how to construct policies from individual artifacts and how the handler evaluates these policies within a transaction context.
 
 ## Security Considerations
 
-Since the standard sets out a scheme (protocol) for the interaction of contracts with the main orchestrator (processor), the standard itself is not a source of security problems. Each implementation of this policy engine has to justify the security of its use on its own. This section lists only hypothetical common security issues that may be common to many implementations:
-1. Untrusted artifact. If any elementary rule that is part of a policy is unreliable, the entire policy is unreliable and can be exploited to obtain a false authorization for an operation. An unreliable artifact can be an artifact with updated logic (proxy), an artifact with unknown code, an artifact that is vulnerable to attacks, etc.
-2. Incorrect initialization of the state. Statefull artifacts use a new proxy to get a clean state. This approach may not be obvious and, if you get confused, you can get empty slots where you expected data and vice versa. The reference instantiation uses a minimal proxy (any approach can be used to generate a pseudo-copy) that uses delegatecall, which is also worth mentioning.
-3. Attack on the handler. If the implementation of the policy graph handler is vulnerable, any policy can be replaced by a single artifact policy that always returns true. Thus, special attention should be paid to the authorization of handler actions.
+Since this standard defines a protocol for contract interactions with a main orchestrator (processor), the standard itself does not introduce inherent security vulnerabilities. Each implementation must independently validate its security properties. However, several common security considerations apply to most implementations:
+
+1. **Untrusted artifacts**: If any component rule within a policy is unreliable, the entire policy becomes vulnerable and may be exploited to generate false authorizations. An unreliable artifact might involve updated logic (via proxy), unknown or unaudited code, or code vulnerable to known attack vectors.
+
+2. **State initialization errors**: Stateful artifacts use proxies to maintain clean states. This approach introduces complexity, potentially causing unexpected behavior if misunderstood. Developers may encounter empty storage slots where data was expected or vice versa. The reference implementation uses minimal proxies with delegatecall functionality, which requires careful handling to avoid security issues.
+
+3. **Handler vulnerabilities**: If the policy graph handler implementation contains vulnerabilities, an attacker might replace a legitimate policy with a malicious one that always returns true. Therefore, implementations must enforce strict authorization controls on handler operations.
+
+Implementers should consider these issues and conduct thorough security audits before deploying policy-based systems in production environments.
 
 ## Copyright
 
