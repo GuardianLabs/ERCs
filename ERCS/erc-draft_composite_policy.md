@@ -1,6 +1,6 @@
 ---
-title: Composite On-Chain Policies with Arbitrary Rules
-description: Simple onchain policy engine utilizing generic rule artifacts within DAG evaluator
+title: Universal Policy Engine
+description: Composite onchain policy engine utilizing generic rule artifacts within DAG evaluator
 author: Vlad Pryadko <vpriadko@lacero.io>, Vitali Grabovski <v.grabovski@lacero.io>
 discussions-to: <URL>
 status: Draft
