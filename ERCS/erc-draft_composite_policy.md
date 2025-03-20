@@ -41,6 +41,46 @@ Artifacts in this proposal are implemented as smart contracts, allowing them to 
 
 This construction system - which allows for modifying components and dynamically supplying them with data - is defined by this standard.
 
+```mermaid
+flowchart LR
+    %% Define nodes with appropriate shapes and colors
+    Policy[Policy]:::policy
+    MustBeText[must be]:::redText
+    Over21Text[over 21 years old]:::greenText
+    AndText[and]:::blackText
+    CitizenText[be a citizen]:::orangeText
+    
+    %% Define artifact nodes
+    MustBe["MUST BE\nartifact"]:::mustbe
+    And["AND\nartifact"]:::and
+    GreaterThan["GREATER THAN\nartifact +\nconstant \"21\""]:::greater
+    IsCitizen["IS CITIZEN\nartifact"]:::citizen
+    
+    %% Connect everything
+    Policy --> PolicyBox
+    
+    subgraph PolicyBox [" "]
+        MustBeText --- Over21Text --- AndText --- CitizenText
+    end
+    
+    MustBeText --> MustBe
+    AndText --> And
+    Over21Text --> GreaterThan
+    CitizenText --> IsCitizen
+    
+    %% Define styles for nodes
+    classDef policy fill:#99ccff,stroke:#0066cc,shape:diamond
+    classDef mustbe fill:#ffcccc,stroke:#cc0000
+    classDef and fill:white,stroke:black
+    classDef greater fill:#ccffcc,stroke:#339933
+    classDef citizen fill:#ffeecc,stroke:#ff9933
+    
+    classDef redText color:#cc0000,stroke:#cc0000
+    classDef greenText color:#339933,stroke:#339933
+    classDef blackText color:black,stroke:black
+    classDef orangeText color:#ff9933,stroke:#ff9933
+```
+
 ### Artifact Interfaces
 
 Artifacts may implement any logic but MUST adhere to a standard interface that allows the policy controller to integrate them correctly and ensure consistent data flow:
