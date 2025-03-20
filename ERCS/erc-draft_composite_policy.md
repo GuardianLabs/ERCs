@@ -37,7 +37,7 @@ In this standard, the fundamental component of a policy is called an **artifact*
 
 For example, a policy stating "must be over 21 years old and a citizen" comprises two artifacts: "must be over 21 years old" and "must be a citizen". While one could define a single artifact encompassing both requirements, it is generally recommended to maintain granularity that reflects natural divisions of logic.
 
-Artifacts in this proposal are implemented as smart contracts, allowing them to represent not only rules but also arbitrary transactions. Consequently, logical operators like "should be" and "and" are also implemented as artifacts.
+Artifacts in this proposal are implemented as smart contracts, allowing them to represent not only rules but also arbitrary transactions. Consequently, logical operators like "must be" and "and" are also implemented as artifacts.
 
 This construction system - which allows for modifying components and dynamically supplying them with data - is defined by this standard.
 
@@ -139,6 +139,40 @@ For each node in the traversal, the handler:
 3. Collects the result for use by subsequent nodes
 
 This orchestration allows artifacts to exchange data without direct knowledge of each other. After complete traversal, the root node contains the result of the entire policy evaluation.
+
+```mermaid
+flowchart TD
+    %% Policy Evaluation Flow
+    A[Policy Handler] -->|1. Receive root node| B[Initialize Evaluation]
+    B -->|2. Get required variables| C[Prepare Data]
+    C -->|3. Start traversal| D[Root Node]
+    
+    %% Node Evaluation Process
+    D -->|Visit| E[Process Current Node]
+    E -->|Input arguments| F[Execute Node's Artifact]
+    F -->|Return result| G[Store Result]
+    
+    %% Recursive Traversal
+    G -->|If child nodes exist| H[Visit Child Node]
+    H --> E
+    G -->|If all nodes processed| I[Return Final Result]
+    
+    %% Node Types
+    subgraph "Common Artifact Types"
+        N1[MUST BE\nnode]:::mustbe
+        N2[AND\nnode]:::logic
+        N3[OR\nnode]:::logic
+        N4[GREATER THAN\nnode]:::comparison
+        N5[EQUAL\nnode]:::comparison
+        N6[CUSTOM RULE\nnode]:::custom
+    end
+    
+    %% Styling
+    classDef mustbe fill:#ffec99,stroke:#1e1e1e,color:black
+    classDef logic fill:#a5d8ff,stroke:#1e1e1e,color:black
+    classDef comparison fill:#d0bfff,stroke:#1e1e1e,color:black
+    classDef custom fill:#ffc9c9,stroke:#1e1e1e,color:black
+```
 
 To facilitate interaction with off-chain systems, the handler SHOULD provide a method to retrieve information about all variables used by all artifacts in the policy:
 
