@@ -142,36 +142,29 @@ This orchestration allows artifacts to exchange data without direct knowledge of
 
 ```mermaid
 flowchart TD
-    %% Policy Evaluation Flow
-    A[Policy Handler] -->|1. Receive root node| B[Initialize Evaluation]
-    B -->|2. Get required variables| C[Prepare Data]
-    C -->|3. Start traversal| D[Root Node]
-    
-    %% Node Evaluation Process
-    D -->|Visit| E[Process Current Node]
-    E -->|Input arguments| F[Execute Node's Artifact]
-    F -->|Return result| G[Store Result]
-    
-    %% Recursive Traversal
-    G -->|If child nodes exist| H[Visit Child Node]
-    H --> E
-    G -->|If all nodes processed| I[Return Final Result]
-    
-    %% Node Types
-    subgraph "Common Artifact Types"
-        N1[MUST BE\nnode]:::mustbe
-        N2[AND\nnode]:::logic
-        N3[OR\nnode]:::logic
-        N4[GREATER THAN\nnode]:::comparison
-        N5[EQUAL\nnode]:::comparison
-        N6[CUSTOM RULE\nnode]:::custom
-    end
-    
-    %% Styling
-    classDef mustbe fill:#ffec99,stroke:#1e1e1e,color:black
-    classDef logic fill:#a5d8ff,stroke:#1e1e1e,color:black
-    classDef comparison fill:#d0bfff,stroke:#1e1e1e,color:black
-    classDef custom fill:#ffc9c9,stroke:#1e1e1e,color:black
+        WORE([AND<br/>node]) --> GOLD([MUST BE<br/>node])
+        WORE([AND<br/>node]) --> FAMOUS([IS<br/>CITIZEN
+node])
+        GOLD([MUST BE<br/>node]) --> WORTH([GREATER<br/>THEN
+node])
+        EXERCISE(root node) --> WORE([AND<br/>node])
+        GOLD([MUST BE<br/>node]) --> PLANT(return)
+        FAMOUS([IS<br/>CITIZEN
+node]) --> RUBBER(IS CITIZEN<br/>artifact)
+        WORE([AND<br/>node]) --> CURVE(AND artifact)
+        WORTH([GREATER<br/>THEN
+node]) --> COLLECT(GREATER THEN<br/>artifact)
+        PLANT(return) --> MOOD("arg1 | arg2")
+        DIFFICULTY(return) --> MOOD("arg1 | arg2")
+        TORN(return) --> FLIES(arg1)
+        NERVOUS(variables) --> |person, that is
+probed on being a
+citizen| THEY(arg1)
+        NOTICE(constants) --> |21 years old| FIELD("arg1 | arg2")
+        NERVOUS(variables) --> |actual age of the
+person in question| FIELD("arg1 | arg2")
+        MUSCLE(return) --> WORE([AND<br/>node])
+        WORE([AND<br/>node]) --> PLEASURE(result)
 ```
 
 To facilitate interaction with off-chain systems, the handler SHOULD provide a method to retrieve information about all variables used by all artifacts in the policy:
