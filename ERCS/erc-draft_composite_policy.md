@@ -140,32 +140,7 @@ For each node in the traversal, the handler:
 
 This orchestration allows artifacts to exchange data without direct knowledge of each other. After complete traversal, the root node contains the result of the entire policy evaluation.
 
-```mermaid
-flowchart TD
-        WORE([AND<br/>node]) --> GOLD([MUST BE<br/>node])
-        WORE([AND<br/>node]) --> FAMOUS([IS<br/>CITIZEN
-node])
-        GOLD([MUST BE<br/>node]) --> WORTH([GREATER<br/>THEN
-node])
-        EXERCISE(root node) --> WORE([AND<br/>node])
-        GOLD([MUST BE<br/>node]) --> PLANT(return)
-        FAMOUS([IS<br/>CITIZEN
-node]) --> RUBBER(IS CITIZEN<br/>artifact)
-        WORE([AND<br/>node]) --> CURVE(AND artifact)
-        WORTH([GREATER<br/>THEN
-node]) --> COLLECT(GREATER THEN<br/>artifact)
-        PLANT(return) --> MOOD("arg1 | arg2")
-        DIFFICULTY(return) --> MOOD("arg1 | arg2")
-        TORN(return) --> FLIES(arg1)
-        NERVOUS(variables) --> |person, that is
-probed on being a
-citizen| THEY(arg1)
-        NOTICE(constants) --> |21 years old| FIELD("arg1 | arg2")
-        NERVOUS(variables) --> |actual age of the
-person in question| FIELD("arg1 | arg2")
-        MUSCLE(return) --> WORE([AND<br/>node])
-        WORE([AND<br/>node]) --> PLEASURE(result)
-```
+![Policy bird's eye view](../assets/erc-draft_composite_policy/simple_policy_bird_eye_view.svg)
 
 To facilitate interaction with off-chain systems, the handler SHOULD provide a method to retrieve information about all variables used by all artifacts in the policy:
 
