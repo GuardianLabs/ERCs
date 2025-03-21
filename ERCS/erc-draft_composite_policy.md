@@ -262,8 +262,9 @@ This standard may appear associated with [ERC-2746](./eip-2746.md), but they are
 
 ## Reference Implementation
 
-A reference implementation is available in the following repository:
-https://github.com/GuardianLabs/policy-sdk/tree/dev/packages/contracts/contracts
+A reference implementation of policy handler is available [here](../assets/erc-draft_composite_policy/contracts/PolicyHandler.sol).
+
+Full SDK implementing auxillary helpers for variables population, off- and on-chain evaluation, DSL and compiler for policy definition is public in [this repository](https://github.com/GuardianLabs/policy-sdk/tree/dev).
 
 The reference implementation includes:
 - Core artifact interfaces
@@ -273,6 +274,24 @@ The reference implementation includes:
 - Test suite demonstrating policy composition and evaluation
 
 The implementation demonstrates how to construct policies from individual artifacts and how the handler evaluates these policies within a transaction context.
+
+### Satellite Functionality 
+
+The computational capabilities of the proposed system are inherently Turing-complete, as it is built on a Turing-complete runtime environment. This allows for extensive flexibility in policy definition and execution. The primary limitations relate to:
+
+1. Integration with off-chain systems
+2. Policy logic definition
+3. Efficient variable supply mechanisms
+
+The reference implementation addresses these challenges by providing several additional components:
+
+- Variable mapping utilities that facilitate conversion between off-chain variables and their on-chain artifact parameter representations
+- Comprehensive examples of fully on-chain policy implementations
+- A domain-specific language (DSL) and accompanying compiler for intuitive policy composition using existing artifacts
+- An intermediate representation parser that enables custom policy definition approaches beyond the provided DSL
+- Client-side implementations facilitating seamless integration between off-chain systems and on-chain policies
+
+These components demonstrate how the standard can be extended to support various implementation needs while maintaining compatibility with the core specification. The approach enables significant enhancement of decentralized application capabilities, allowing both native dApps and traditional Web2 applications to leverage on-chain policy enforcement.
 
 ## Security Considerations
 
