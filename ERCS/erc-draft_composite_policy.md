@@ -1,7 +1,7 @@
 ---
 title: Universal Policy Engine
 description: Composite onchain policy engine utilizing generic rule artifacts within DAG evaluator
-author: Vlad Pryadko <vpriadko@lacero.io>, Vitali Grabovski <v.grabovski@lacero.io>
+author: Vlad Pryadko <vpriadko@guardianlabs.org>, Vitali Grabovski <v.grabovski@guardianlabs.org>
 discussions-to: <URL>
 status: Draft
 type: Standards Track
