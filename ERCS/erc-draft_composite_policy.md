@@ -14,7 +14,7 @@ requires: 1167 ?
 
 This proposal presents an efficient on-chain policy engine approach. Policies are decomposed into simple rules, called artifacts, and represented as a directed acyclic graph (DAG). Each DAG node is an instance of an artifact. The DAG is recursively evaluated starting from a top-tier artifact (root node), effectively processing it as a tree. The evaluation result serves as the final policy evaluation outcome.
 
-The standard defines approaches, interfaces, and conventional traits that facilitate interoperability between policies and artifacts for common usage scenarios.
+The standard defines approaches, interfaces, and conventional traits that facilitate interoperability between policies and artifacts for common usage scenarios, enabling implementation and consumption of any compliance scenario.
 
 ## Motivation
 
@@ -264,7 +264,7 @@ Test cases for this standard are included in the reference implementation reposi
 
 No backward compatibility issues have been identified.
 
-This standard may appear associated with [ERC-2746](./eip-2746.md), but they are not intended as replacements for each other. While ERC-2746 describes a similar concept of rule perception, the current standard presents a fundamentally different approach to implementing a rule engine on-chain, with entirely distinct interfaces and mechanisms.
+This standard may appear associated with [ERC-2746](./eip-2746.md), but they are not intended as replacements for each other. While ERC-2746 describes a similar concept of rule perception, the current standard presents a fundamentally different approach to implementing a rule engine on-chain, with entirely distinct interfaces and mechanisms, while being simpler to apply and more powerful in usage.
 
 ## Reference Implementation
 
