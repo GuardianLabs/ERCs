@@ -41,9 +41,9 @@ To summarize, a policy is a rule governing a specific transaction, regardless of
 
 In this standard, the fundamental component of a policy is called an **artifact**. An artifact is also a rule, but it is atomic within the policy context. Internally, an artifact can be as simple or complex as its creator requires.
 
-For example, a policy stating "must be over 21 years old and a citizen" comprises two artifacts: "must be over 21 years old" and "must be a citizen". While one could define a single artifact encompassing both requirements, it is generally recommended to maintain granularity that reflects natural divisions of logic.
+For example, a policy stating "be over 21 years old and a citizen" comprises two artifacts: "be over 21 years old" and "be a citizen". While one could define a single artifact encompassing both requirements, it is generally recommended to maintain granularity that reflects natural divisions of logic.
 
-Artifacts in this proposal are implemented as smart contracts, allowing them to represent not only rules but also arbitrary transactions. Consequently, logical operators like "must be" and "and" are also implemented as artifacts.
+Artifacts in this proposal are implemented as smart contracts, allowing them to represent not only rules but also arbitrary transactions. Consequently, logical operators like "and" are also implemented as artifacts.
 
 This construction system - which allows for modifying components and dynamically supplying them with data - is defined by this standard.
 
@@ -53,21 +53,19 @@ flowchart TD
     Policy[Policy]:::policy
     
     %% Define the two approaches
-    SingleApproach[must be over 21 years old and be a citizen]:::box
-    ModularApproach[must be over 21 years old and be a citizen]:::box
+    SingleApproach[be over 21 years old and a citizen]:::box
+    ModularApproach[be over 21 years old and a citizen]:::box
     
     %% Define the single artifact implementation
     SingleArtifact["Single gigantic artifact\n+\nconstant \"21\""]:::single
     
     %% Define modular artifact implementations
-    MustBe["MUST BE\nartifact"]:::mustbe
     And["AND\nartifact"]:::and
     GreaterThan["GREATER THAN\nartifact\n+\nconstant \"21\""]:::greater
     IsCitizen["IS CITIZEN\nartifact"]:::citizen
     
     %% Define subcomponents in modular approach
-    MustBeText[must be]:::redText
-    Over21Text[over 21 years old]:::greenText
+    Over21Text[be over 21 years old]:::greenText
     AndText[and]:::blackText
     CitizenText[be a citizen]:::orangeText
     
@@ -77,12 +75,10 @@ flowchart TD
     
     SingleApproach --> SingleArtifact
     
-    ModularApproach --- MustBeText
     ModularApproach --- Over21Text
     ModularApproach --- AndText
     ModularApproach --- CitizenText
     
-    MustBeText --> MustBe
     AndText --> And
     Over21Text --> GreaterThan
     CitizenText --> IsCitizen
@@ -91,12 +87,10 @@ flowchart TD
     classDef policy fill:#99ccff,stroke:#0066cc,shape:diamond
     classDef box fill:white,stroke:#0066cc,rounded:true
     classDef single fill:white,stroke:black,rounded:true
-    classDef mustbe fill:#ffcccc,stroke:#cc0000,rounded:true
     classDef and fill:white,stroke:black,rounded:true
     classDef greater fill:#ccffcc,stroke:#339933,rounded:true
     classDef citizen fill:#ffeecc,stroke:#ff9933,rounded:true
     
-    classDef redText color:#cc0000
     classDef greenText color:#339933
     classDef blackText color:black
     classDef orangeText color:#ff9933
