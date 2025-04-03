@@ -13,25 +13,78 @@ created: 2025-03-14
 
 This proposal presents an efficient on-chain policy engine approach. Policies are decomposed into simple rules, called artifacts, and represented as interconnected entities forming logical structures. In a recommended implementation, these entities can be organized as a directed acyclic graph (DAG), where each node is an instance of an artifact. The evaluation begins with a top-tier artifact (root node) and processes through the connected structure, with the result serving as the final policy evaluation outcome.
 
-The standard defines approaches, interfaces, and conventional traits that facilitate elegant interoperability between policies and artifacts for common usage scenarios, enabling seamless implementation and consumption of any compliance scenario.
+The standard's universality stems from its preservation of artifact connectivity across different contexts, establishing a meta-layer of compliance requirements applicable to any new or existing (yet upgradable) decentralized application. It defines approaches, interfaces, and conventional traits that facilitate elegant interoperability between policies and artifacts for common usage scenarios, enabling seamless implementation and consumption of any compliance scenario.
 
 ## Motivation
+
+### Current State of Smart Contract Rule Implementation
 
 Many software systems rely on smart contracts, ranging from simple vaults to decentralized exchanges and oracles. All such systems require regulation in various forms - limiting administrative privileges, restricting allowed methods, capping withdrawal amounts. Restrictions, rules, and prohibitions constitute essential components of any financial (or other) system.
 
 Current smart contract programming approaches allow for the creation of simple rules through algorithmic constraints and modifiers. However, more complex rules - dynamic, composite, or conditional - become increasingly difficult to implement as the number of inputs grows. Moreover, certain problems, such as interactive composition of simple rules, cannot be addressed with current methods due to the lack of reflection capabilities in smart contract platforms. Reusing complex rules, modifying them dynamically, and hierarchical organization are similarly challenging.
 
-Every decentralized application requires validation logic. Any action or state change involves various checks: authentication verifications (such as onlyOwner), balance validations, allowance confirmations, and more. The absence of proper validations indicates non-compliance with business requirements, rendering the application essentially useless. These validations may need to be strengthened or relaxed over time as requirements evolve. In non-upgradeable contracts, validation changes become impossible after deployment. Even in upgradeable contracts, such modifications are costly and vulnerable to errors during and after the upgrade process. This standard introduces a unique capability to compose validations into rule sets that can be modified without changing the underlying code, creating unprecedented flexibility for regulatory adaptation.
+### The Validation Challenge in Decentralized Applications
 
-When developing compliance conditions, developers face several important challenges. Code complexity becomes a daunting concern beyond simple value thresholds, making codebases harder to maintain, understand, and audit. Security flaws in rule implementation can lead to unauthorized access, fund loss, or regulatory problems. Integration of new compliance logic into existing codebases often requires extensive changes, with copy-paste approaches duplicating code and requiring separate integration work.
+Every decentralized application requires validation logic. Any action or state change involves various checks:
+- Authentication verifications (such as onlyOwner)
+- Balance validations
+- Allowance confirmations
+- Custom business logic validation
 
-Many compliance patterns appear across different projects but lack standard interfaces, forcing developers to repeatedly implement similar functionality. As regulatory requirements change, contracts need updates, requiring the entire development process again - writing, testing, auditing, and deploying - increasing costs and error potential.
+The absence of proper validations indicates non-compliance with business requirements, rendering the application essentially useless. These validations may need to be strengthened or relaxed over time as requirements evolve. In non-upgradeable contracts, validation changes become impossible after deployment. Even in upgradeable contracts, such modifications are costly and vulnerable to errors during and after the upgrade process.
 
-This proposal establishes a standard enabling simplicity, reusability, and comprehensive compliance capabilities without requiring network layer modifications. The standard addresses these challenges by simplifying integration through standardized interfaces, allowing security responsibility assignment to artifact developers, and containing rule complexity within artifacts. Common patterns can be implemented once and reused across multiple policies, while regulatory changes can be addressed by adding or replacing specific artifacts rather than rebuilding entire applications diving into a new and complete dapp development life cycle from scratch.
+### Problems Faced by Developers
+
+When developing compliance conditions, developers face several important challenges:
+
+1. **Code Complexity**: Beyond simple value thresholds, compliance logic becomes increasingly complex. This complexity makes codebases significantly harder to maintain, understand, and audit effectively. The intricate nature of compliance requirements often results in convoluted implementations that obscure the underlying business logic.
+
+2. **Security Vulnerabilities**: Flaws in rule implementation pose serious risks to system integrity and user assets. Poor implementations can enable unauthorized access to restricted functionality, lead to direct loss of user funds through exploits, and potentially violate regulatory requirements that the rules were meant to enforce. These vulnerabilities often stem from the inherent complexity of compliance logic and the challenges of properly implementing intricate rule systems.
+
+3. **Integration Difficulties**: Adding new compliance logic to existing codebases often requires:
+   - Extensive changes
+   - Code duplication through copy-paste approaches
+   - Separate integration work for each implementation
+
+4. **Redundant Implementation**: Many compliance patterns appear across different projects but lack standard interfaces, forcing developers to repeatedly implement similar functionality.
+
+5. **Costly Updates**: As regulatory requirements change, contracts need updates, requiring the entire development process again - writing, testing, auditing, and deploying - increasing costs and error potential.
+
+### Proposed Solution
+
+This proposal establishes a standard enabling simplicity, reusability, and comprehensive compliance capabilities without requiring network layer modifications. The standard addresses these challenges through:
+
+- **Simplified Integration**: Standardized interfaces reduce the complexity of incorporating policies into applications
+- **Security Responsibility Assignment**: Artifact developers focus on security within their specific components
+- **Complexity Containment**: Rule complexity is isolated within artifacts
+- **Pattern Reusability**: Common patterns can be implemented once and reused across multiple policies
+- **Incremental Updates**: Regulatory changes can be addressed by adding or replacing specific artifacts rather than rebuilding entire applications
 
 The approach significantly reduces codebase complexity by delegating policy enforcement to dedicated handler contracts. Each artifact's complexity is managed by its specific developer, creating a clear separation of concerns. Integration into both new and existing upgradable applications becomes straightforward, as everything in the artifact lifecycle is handled within standard methods on the policy handler - once the handler is added to the application codebase, no further deep integration is needed.
 
-Security responsibilities are effectively delegated to artifact developers, who should conduct thorough security audits before making artifacts publicly available. This modular approach enables quick and simple reusability of artifacts across multiple applications. The standard allows easy addition or replacement of artifacts within policy handlers, enabling rapid policy rule upgrades when compliance requirements change. Instead of going through a complete development lifecycle, only the implementation of new features is required - when there's a need to implement additional compliance rules, developers can simply implement new artifacts (or use existing community-developed ones) and update the existing policy via the policy handler.
+### Key Benefits
+
+This standard provides several important benefits:
+
+- **Application Augmentation**: Smart contracts can augment decentralized applications with any compliance mechanism
+- **Fast Integration**: Simple, standardized interfaces enable quick adoption
+- **Simplified Reusability**: Artifacts can be easily shared and reused
+- **Development Focus**: By eliminating regular complexities from compliance implementation, developers can focus on business logic
+- **Accelerated Lifecycles**: Standardized conventions accelerate both initial development and upgrade processes
+- **Resource Efficiency**: Dramatically reduces the time and resources needed to adapt to changing regulations
+
+### Delegated Security Model
+
+Security responsibilities are effectively delegated to artifact developers, who should conduct thorough security audits before making artifacts publicly available. This modular approach enables:
+
+1. **Component Reusability**: Quick and simple reuse of artifacts across multiple applications
+2. **Flexible Policy Evolution**: Easy addition or replacement of artifacts within policy handlers
+3. **Rapid Rule Updates**: When compliance requirements change, only targeted modifications are needed
+4. **Reduced Development Overhead**: Instead of complete development lifecycles, only new feature implementation is required
+
+When there's a need to implement additional compliance rules, developers can simply implement new artifacts (or use existing community-developed ones) and update the existing policy via the policy handler.
+
+### Outcome
 
 This approach enables sophisticated compliance systems that were previously impractical to implement, unlocking new possibilities for on-chain governance and regulatory compliance.
 
@@ -173,7 +226,7 @@ This approach allows each variable or result of an artifact to be processed as b
 
 Artifacts have two primary methods: `init` and `exec`.
 
-The `init` method is called once during policy initialization by the handler. Since artifacts can be reused across multiple policies, each new policy creates its own copy of each artifact requiring initialization using some copying strategy (e.g. [ERC-1167](./eip-1167.md)). This ensures that each artifact instance maintains a clean state.
+The `init` method is called once during policy initialization by the handler. Since artifacts can be reused across multiple policies, each new policy creates its own copy of each artifact requiring initialization using some copying strategy (e.g. [ERC-1167](./erc-1167.md)). This ensures that each artifact instance maintains a clean state.
 
 Both `init` and `exec` methods accept arguments (with `exec` also returning a value). Following the "all bytes" approach, these arguments are encoded as bytes. However, their serialization differs: `exec` arguments are an array of byte-encoded values, while `init` arguments are directly byte-encoded values:
 
@@ -277,7 +330,7 @@ The test suite provides comprehensive examples of how to implement, configure, a
 
 No backward compatibility issues have been identified.
 
-This standard may appear associated with [ERC-2746](./eip-2746.md), but they are not intended as replacements for each other. While ERC-2746 describes a similar concept of rule perception, the current standard presents a fundamentally different approach to implementing a rule engine on-chain, with entirely distinct interfaces and mechanisms, while being simpler to apply and more powerful in usage.
+This standard may appear associated with [ERC-2746](./erc-2746.md), but they are not intended as replacements for each other. While ERC-2746 describes a similar concept of rule perception, the current standard presents a fundamentally different approach to implementing a rule engine on-chain, with entirely distinct interfaces and mechanisms, while being simpler to apply and more powerful in usage.
 
 ## Reference Implementation
 
@@ -292,7 +345,7 @@ The reference implementation includes:
 - Example artifacts for common use cases
 - Test suite demonstrating policy composition and evaluation
 
-The implementation demonstrates how to construct robust policies from individual artifacts and how the handler seamlessly evaluates these policies within a transaction context. This reference implementation offers a proven, efficient solution for policy integration and composition.
+The implementation demonstrates how to construct robust policies from individual artifacts and how the handler seamlessly evaluates these policies within a transaction context. This reference implementation offers a proven, efficient solution for policy integration and composition, functioning as a layer of compliance requirements that can be applied to any compatible decentralized application.
 
 ### Satellite Functionality 
 
@@ -318,7 +371,7 @@ Since this standard defines a protocol for contract interactions with a main orc
 
 1. **Untrusted artifacts**: If any component rule within a policy is unreliable, the entire policy becomes vulnerable and may be exploited to generate false authorizations. An unreliable artifact might involve updated logic (via proxy), unknown or unaudited code, or code vulnerable to known attack vectors.
 
-2. **State initialization errors**: Stateful artifacts require clean state isolation between different policy instances. To achieve this, the Policy Handler must create new, isolated instances for each stateful artifact using approaches like minimal proxies (e.g., [EIP-1167](./eip-1167.md)). Improper implementation of this state isolation mechanism can lead to unexpected behavior - developers may encounter empty storage slots where data was expected or slots containing data from other policies when they should be empty. While developers may implement their own approach for state isolation, it is strongly recommended to use established patterns like EIP-1167 to avoid such corruption. The reference implementation uses minimal proxies with delegatecall functionality, which requires careful handling to avoid security issues.
+2. **State initialization errors**: Stateful artifacts require clean state isolation between different policy instances. To achieve this, the Policy Handler must create new, isolated instances for each stateful artifact using approaches like minimal proxies (e.g., [ERC-1167](./erc-1167.md)). Improper implementation of this state isolation mechanism can lead to unexpected behavior - developers may encounter empty storage slots where data was expected or slots containing data from other policies when they should be empty. While developers may implement their own approach for state isolation, it is strongly recommended to use established patterns like ERC-1167 to avoid such corruption. The reference implementation uses minimal proxies with delegatecall functionality, which requires careful handling to avoid security issues.
 
 3. **Handler vulnerabilities**: If the policy graph handler implementation contains vulnerabilities, an attacker might replace a legitimate policy with a malicious one that always returns true. Therefore, implementations must enforce strict authorization controls on handler operations.
 
