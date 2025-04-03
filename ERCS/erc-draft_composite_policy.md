@@ -14,7 +14,7 @@ requires: 1167 ?
 
 This proposal presents an efficient on-chain policy engine approach. Policies are decomposed into simple rules, called artifacts, and represented as a directed acyclic graph (DAG). Each DAG node is an instance of an artifact. The DAG is recursively evaluated starting from a top-tier artifact (root node), effectively processing it as a tree. The evaluation result serves as the final policy evaluation outcome.
 
-The standard defines approaches, interfaces, and conventional traits that facilitate interoperability between policies and artifacts for common usage scenarios, enabling implementation and consumption of any compliance scenario.
+The standard defines approaches, interfaces, and conventional traits that facilitate elegant interoperability between policies and artifacts for common usage scenarios, enabling seamless implementation and consumption of any compliance scenario.
 
 ## Motivation
 
@@ -22,13 +22,13 @@ Many software systems rely on smart contracts, ranging from simple vaults to dec
 
 Current smart contract programming approaches allow for the creation of simple rules through algorithmic constraints and modifiers. However, more complex rules - dynamic, composite, or conditional - become increasingly difficult to implement as the number of inputs grows. Moreover, certain problems, such as interactive composition of simple rules, cannot be addressed with current methods due to the lack of reflection capabilities in smart contract platforms. Reusing complex rules, modifying them dynamically, and hierarchical organization are similarly challenging.
 
-When developing compliance conditions, developers face several important challenges. Code complexity becomes a concern beyond simple value thresholds, making codebases harder to maintain, understand, and audit. Security flaws in rule implementation can lead to unauthorized access, fund loss, or regulatory problems. Integration of new compliance logic into existing codebases often requires extensive changes, with copy-paste approaches duplicating code and requiring separate integration work.
+When developing compliance conditions, developers face several important challenges. Code complexity becomes a daunting concern beyond simple value thresholds, making codebases harder to maintain, understand, and audit. Security flaws in rule implementation can lead to unauthorized access, fund loss, or regulatory problems. Integration of new compliance logic into existing codebases often requires extensive changes, with copy-paste approaches duplicating code and requiring separate integration work.
 
 Many compliance patterns appear across different projects but lack standard interfaces, forcing developers to repeatedly implement similar functionality. As regulatory requirements change, contracts need updates, requiring the entire development process again - writing, testing, auditing, and deploying - increasing costs and error potential.
 
 This proposal establishes a standard enabling simplicity, reusability, and comprehensive compliance capabilities without requiring network layer modifications. The standard addresses these challenges by simplifying integration through standardized interfaces, allowing security responsibility assignment to artifact developers, and containing rule complexity within artifacts. Common patterns can be implemented once and reused across multiple policies, while regulatory changes can be addressed by adding or replacing specific artifacts rather than rebuilding entire applications diving into a new and complete dapp development life cycle from scratch.
 
-This approach enables sophisticated compliance systems that were previously impractical to implement.
+This approach enables sophisticated compliance systems that were previously impractical to implement, unlocking new possibilities for on-chain governance and regulatory compliance.
 
 ## Specification
 
@@ -227,7 +227,7 @@ This separation of concerns allows both human users and automated systems to pro
 
 ### Handler Architecture Considerations
 
-The graph-based approach is optimal for artifact orchestration, offering recursive traversal capabilities, memory efficiency, and support for dynamic modifications. Artifacts function naturally as node logic within this structure, with the handler defining additional node properties and relationships.
+The graph-based approach is optimal for artifact orchestration, offering elegant recursive traversal capabilities, memory efficiency, and support for dynamic modifications. Artifacts function naturally as node logic within this structure, with the handler defining additional node properties and relationships.
 
 A key responsibility of the handler is parameter management. The handler determines:
 - Which parameters are constant within the policy
@@ -273,7 +273,7 @@ The reference implementation includes:
 - Example artifacts for common use cases
 - Test suite demonstrating policy composition and evaluation
 
-The implementation demonstrates how to construct policies from individual artifacts and how the handler evaluates these policies within a transaction context.
+The implementation demonstrates how to construct robust policies from individual artifacts and how the handler seamlessly evaluates these policies within a transaction context.
 
 ### Satellite Functionality 
 
