@@ -26,7 +26,7 @@ When developing compliance conditions, developers face several important challen
 
 Many compliance patterns appear across different projects but lack standard interfaces, forcing developers to repeatedly implement similar functionality. As regulatory requirements change, contracts need updates, requiring the entire development process again - writing, testing, auditing, and deploying - increasing costs and error potential.
 
-This proposal establishes a standard enabling simplicity, reusability, and comprehensive compliance capabilities without requiring network layer modifications. The standard addresses these challenges by simplifying integration through standardized interfaces, allowing security responsibility assignment to artifact developers, and containing rule complexity within artifacts. Common patterns can be implemented once and reused across multiple policies, while regulatory changes can be addressed by adding or replacing specific artifacts rather than rebuilding entire applications.
+This proposal establishes a standard enabling simplicity, reusability, and comprehensive compliance capabilities without requiring network layer modifications. The standard addresses these challenges by simplifying integration through standardized interfaces, allowing security responsibility assignment to artifact developers, and containing rule complexity within artifacts. Common patterns can be implemented once and reused across multiple policies, while regulatory changes can be addressed by adding or replacing specific artifacts rather than rebuilding entire applications diving into a new and complete dapp development life cycle from scratch.
 
 This approach enables sophisticated compliance systems that were previously impractical to implement.
 
