@@ -245,13 +245,19 @@ The graph-based architecture imposes several important constraints:
 
 ## Test Cases
 
-Test cases for this standard are included in the reference implementation repository. They demonstrate:
+Test cases for this standard are included in the [reference implementation repository](../assets/erc-draft_composite_policy/test//TODO). They demonstrate:
 
 1. Creation and initialization of artifacts
 2. Construction of policies from multiple artifacts
-3. Evaluation of policies with various input data
-4. Reuse of artifacts across different policies
-5. Implementation of common policy patterns and composite structures
+3. DAG structure defining relationships between artifacts
+4. Basic mathematical operations implemented as graph nodes orchestrated by the policy handler
+5. Preparation of execution parameters in off-chain environments
+6. Preparation of execution parameters in on-chain contexts
+7. Evaluation of policies with various input data
+8. Reuse of artifacts across different policies
+9. Implementation of common policy patterns and composite structures
+
+The test suite provides comprehensive examples of how to implement, configure, and utilize the policy engine in various scenarios, serving as both verification of the standard and a learning resource for implementers.
 
 ## Backwards Compatibility
 
