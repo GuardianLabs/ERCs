@@ -241,7 +241,7 @@ The graph-based architecture imposes several important constraints:
 
 2. **EVM call stack limitations**: Since each node traversal involves a contract call to an artifact, policy size is bounded by Ethereum Virtual Machine call stack limits.
 
-3. **Connectivity requirement**: Only nodes connected (directly or indirectly) to the root node will be traversed during evaluation. Disconnected nodes or subgraphs will be ignored during traversal, though their presence does not cause policy failures.
+3. **Connectivity requirement**: Only nodes connected (directly or indirectly) to the root node will be traversed during evaluation. Graphs with disconnected nodes or subgraphs will be rejected during policy creation stage.
 
 ## Test Cases
 
