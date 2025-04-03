@@ -9,9 +9,36 @@ category: ERC
 created: 2025-03-14
 ---
 
+## Table of Contents
+
+- [Abstract](#abstract)
+- [Motivation](#motivation)
+  - [Current State of Smart Contract Rule Implementation](#current-state-of-smart-contract-rule-implementation)
+  - [The Validation Challenge in Decentralized Applications](#the-validation-challenge-in-decentralized-applications)
+  - [Problems Faced by Developers](#problems-faced-by-developers)
+  - [Proposed Solution](#proposed-solution)
+  - [Key Benefits](#key-benefits)
+  - [Delegated Security Model](#delegated-security-model)
+  - [Outcome](#outcome)
+- [Specification](#specification)
+  - [Definitions](#definitions)
+  - [Artifact Interfaces](#artifact-interfaces)
+  - [Policy Handler](#policy-handler)
+- [Rationale](#rationale)
+  - [All bytes](#all-bytes)
+  - [Artifact dataflow traits](#artifact-dataflow-traits)
+  - [External compliance traits](#external-compliance-traits)
+  - [Handler Architecture Considerations](#handler-architecture-considerations)
+- [Test Cases](#test-cases)
+- [Backwards Compatibility](#backwards-compatibility)
+- [Reference Implementation](#reference-implementation)
+  - [Satellite Functionality](#satellite-functionality)
+- [Security Considerations](#security-considerations)
+- [Copyright](#copyright)
+
 ## Abstract
 
-This proposal presents an efficient on-chain policy engine approach. Policies are decomposed into simple rules, called artifacts, and represented as interconnected entities forming logical structures. In a recommended implementation, these entities can be organized as a directed acyclic graph (DAG), where each node is an instance of an artifact. The evaluation begins with a top-tier artifact (root node) and processes through the connected structure, with the result serving as the final policy evaluation outcome.
+Smart contract systems face significant challenges implementing sophisticated, adaptable compliance rules that can evolve with changing regulatory requirements. This proposal presents an efficient on-chain policy engine approach. Policies are decomposed into simple rules, called artifacts, and represented as interconnected entities forming logical structures. In a recommended implementation, these entities can be organized as a directed acyclic graph (DAG), where each node is an instance of an artifact. The evaluation begins with a top-tier artifact (root node) and processes through the connected structure, with the result serving as the final policy evaluation outcome.
 
 The standard's universality stems from its preservation of artifact connectivity across different contexts, establishing a meta-layer of compliance requirements applicable to any new or existing (yet upgradable) decentralized application. It defines approaches, interfaces, and conventional traits that facilitate elegant interoperability between policies and artifacts for common usage scenarios, enabling seamless implementation and consumption of any compliance scenario.
 
@@ -331,6 +358,20 @@ The test suite provides comprehensive examples of how to implement, configure, a
 No backward compatibility issues have been identified.
 
 This standard may appear associated with [ERC-2746](./erc-2746.md), but they are not intended as replacements for each other. While ERC-2746 describes a similar concept of rule perception, the current standard presents a fundamentally different approach to implementing a rule engine on-chain, with entirely distinct interfaces and mechanisms, while being simpler to apply and more powerful in usage.
+
+Main distinctive features of this standard include:
+
+1. **Distributed Architecture**: A modular approach where independent artifacts can be composed to form policies, enabling clean separation of concerns and facilitating independent development of rule components.
+
+2. **Unlimited Extensibility**: The ability to create and integrate any type of compliance logic through custom artifacts, without being constrained by predetermined rule types.
+
+3. **Flexible Integration Options**: Support for embedding policies within existing applications or implementing them as standalone enforcement mechanisms, adaptable to various application architectures.
+
+4. **Explicit State Management**: Clear mechanisms for maintaining isolated state for rule components, ensuring that artifact instances have clean, independent state when used across different policies.
+
+5. **Graph-Based Composition**: A sophisticated approach to policy composition, allowing for complex control flows and data sharing between rule components through a structured graph representation.
+
+These architectural features make this standard particularly suited for dynamic compliance requirements in evolving regulatory environments, where policies need to adapt over time without requiring extensive redevelopment of the underlying applications.
 
 ## Reference Implementation
 
