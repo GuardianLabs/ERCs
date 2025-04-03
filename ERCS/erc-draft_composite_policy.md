@@ -43,7 +43,7 @@ In this standard, the fundamental component of a policy is called an **artifact*
 
 For example, a policy stating "be over 21 years old and a citizen" comprises two artifacts: "be over 21 years old" and "be a citizen". While one could define a single artifact encompassing both requirements, it is generally recommended to maintain granularity that reflects natural divisions of logic.
 
-Artifacts in this proposal are implemented as smart contracts, allowing them to represent not only rules but also arbitrary transactions. Consequently, logical operators like "and" are also implemented as artifacts.
+Artifacts in this proposal are implemented as smart contracts, allowing them to represent not only rules but also arbitrary operations across any context - on-chain transactions, off-chain actions, administrative workflows, or any other decision point requiring policy enforcement. Consequently, logical operators like "and" are also implemented as artifacts.
 
 This construction system - which allows for modifying components and dynamically supplying them with data - is defined by this standard.
 
