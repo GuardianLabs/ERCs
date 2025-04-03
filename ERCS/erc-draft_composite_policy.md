@@ -7,7 +7,6 @@ status: Draft
 type: Standards Track
 category: ERC
 created: 2025-03-14
-requires: 1167 ?
 ---
 
 ## Abstract
@@ -299,7 +298,7 @@ Since this standard defines a protocol for contract interactions with a main orc
 
 1. **Untrusted artifacts**: If any component rule within a policy is unreliable, the entire policy becomes vulnerable and may be exploited to generate false authorizations. An unreliable artifact might involve updated logic (via proxy), unknown or unaudited code, or code vulnerable to known attack vectors.
 
-2. **State initialization errors**: Stateful artifacts use proxies to maintain clean states. This approach introduces complexity, potentially causing unexpected behavior if misunderstood. Developers may encounter empty storage slots where data was expected or vice versa. The reference implementation uses minimal proxies with delegatecall functionality, which requires careful handling to avoid security issues.
+2. **State initialization errors**: Stateful artifacts require clean state isolation between different policy instances. To achieve this, the Policy Handler must create new, isolated instances for each stateful artifact using approaches like minimal proxies (e.g., [EIP-1167](./eip-1167.md)). Improper implementation of this state isolation mechanism can lead to unexpected behavior - developers may encounter empty storage slots where data was expected or slots containing data from other policies when they should be empty. While developers may implement their own approach for state isolation, it is strongly recommended to use established patterns like EIP-1167 to avoid such corruption. The reference implementation uses minimal proxies with delegatecall functionality, which requires careful handling to avoid security issues.
 
 3. **Handler vulnerabilities**: If the policy graph handler implementation contains vulnerabilities, an attacker might replace a legitimate policy with a malicious one that always returns true. Therefore, implementations must enforce strict authorization controls on handler operations.
 
