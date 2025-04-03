@@ -21,11 +21,17 @@ Many software systems rely on smart contracts, ranging from simple vaults to dec
 
 Current smart contract programming approaches allow for the creation of simple rules through algorithmic constraints and modifiers. However, more complex rules - dynamic, composite, or conditional - become increasingly difficult to implement as the number of inputs grows. Moreover, certain problems, such as interactive composition of simple rules, cannot be addressed with current methods due to the lack of reflection capabilities in smart contract platforms. Reusing complex rules, modifying them dynamically, and hierarchical organization are similarly challenging.
 
+Every decentralized application requires validation logic. Any action or state change involves various checks: authentication verifications (such as onlyOwner), balance validations, allowance confirmations, and more. The absence of proper validations indicates non-compliance with business requirements, rendering the application essentially useless. These validations may need to be strengthened or relaxed over time as requirements evolve. In non-upgradeable contracts, validation changes become impossible after deployment. Even in upgradeable contracts, such modifications are costly and vulnerable to errors during and after the upgrade process. This standard introduces a unique capability to compose validations into rule sets that can be modified without changing the underlying code, creating unprecedented flexibility for regulatory adaptation.
+
 When developing compliance conditions, developers face several important challenges. Code complexity becomes a daunting concern beyond simple value thresholds, making codebases harder to maintain, understand, and audit. Security flaws in rule implementation can lead to unauthorized access, fund loss, or regulatory problems. Integration of new compliance logic into existing codebases often requires extensive changes, with copy-paste approaches duplicating code and requiring separate integration work.
 
 Many compliance patterns appear across different projects but lack standard interfaces, forcing developers to repeatedly implement similar functionality. As regulatory requirements change, contracts need updates, requiring the entire development process again - writing, testing, auditing, and deploying - increasing costs and error potential.
 
 This proposal establishes a standard enabling simplicity, reusability, and comprehensive compliance capabilities without requiring network layer modifications. The standard addresses these challenges by simplifying integration through standardized interfaces, allowing security responsibility assignment to artifact developers, and containing rule complexity within artifacts. Common patterns can be implemented once and reused across multiple policies, while regulatory changes can be addressed by adding or replacing specific artifacts rather than rebuilding entire applications diving into a new and complete dapp development life cycle from scratch.
+
+The approach significantly reduces codebase complexity by delegating policy enforcement to dedicated handler contracts. Each artifact's complexity is managed by its specific developer, creating a clear separation of concerns. Integration into both new and existing upgradable applications becomes straightforward, as everything in the artifact lifecycle is handled within standard methods on the policy handler - once the handler is added to the application codebase, no further deep integration is needed.
+
+Security responsibilities are effectively delegated to artifact developers, who should conduct thorough security audits before making artifacts publicly available. This modular approach enables quick and simple reusability of artifacts across multiple applications. The standard allows easy addition or replacement of artifacts within policy handlers, enabling rapid policy rule upgrades when compliance requirements change. Instead of going through a complete development lifecycle, only the implementation of new features is required - when there's a need to implement additional compliance rules, developers can simply implement new artifacts (or use existing community-developed ones) and update the existing policy via the policy handler.
 
 This approach enables sophisticated compliance systems that were previously impractical to implement, unlocking new possibilities for on-chain governance and regulatory compliance.
 
@@ -40,7 +46,7 @@ To summarize, a policy is a rule governing a specific transaction, regardless of
 
 In this standard, the fundamental component of a policy is called an **artifact**. An artifact is also a rule, but it is atomic within the policy context. Internally, an artifact can be as simple or complex as its creator requires.
 
-For example, a policy stating "be over 21 years old and a citizen" comprises two artifacts: "be over 21 years old" and "be a citizen". While one could define a single artifact encompassing both requirements, it is generally recommended to maintain granularity that reflects natural divisions of logic.
+For example, a policy stating "be over 21 years old and a citizen" comprises two artifacts: "be over 21 years old" and "be a citizen". While one could define a single artifact encompassing both requirements, it is generally recommended to maintain granularity that reflects natural divisions of logic. This granular approach enables policies to be constructed from simple, reusable building blocks, tackling the challenge of complex rule composition.
 
 Artifacts in this proposal are implemented as smart contracts, allowing them to represent not only rules but also arbitrary operations across any context - on-chain transactions, off-chain actions, administrative workflows, or any other decision point requiring policy enforcement. Consequently, logical operators like "and" are also implemented as artifacts.
 
@@ -119,6 +125,8 @@ interface IArbitraryDataArtifact {
 }
 ```
 
+This standardized interface creates clear interaction patterns that simplify the incorporation of policies into both new and existing applications, reducing integration complexity.
+
 Other interfaces are more implicit, following conventions and approaches explained in the Rationale section.
 
 ### Policy Handler
@@ -137,7 +145,7 @@ For each node in the traversal, the handler:
 2. Supplies it with the appropriate variables and results from previously calculated nodes
 3. Collects the result for use by subsequent nodes
 
-This orchestration allows artifacts to exchange data without direct knowledge of each other. After complete traversal, the root node contains the result of the entire policy evaluation.
+This orchestration allows artifacts to exchange data without direct knowledge of each other. After complete traversal, the root node contains the result of the entire policy evaluation. This design provides a structured mechanism for rule interaction, solving the challenge of composing complex rules from simpler components.
 
 ![Policy bird's eye view](../assets/erc-draft_composite_policy/simple_policy_bird_eye_view.svg)
 
@@ -149,6 +157,8 @@ function getVariablesList() public view returns (NamedTypedVariables[] memory) {
 }
 ```
 
+This feature enables seamless data flow across boundaries, bridging the gap between on-chain and off-chain systems.
+
 ## Rationale
 
 Since rules often require heterogeneous data (both on-chain and off-chain), the system must facilitate integration from both sources. This integration is achieved through the artifact handler architecture, which properly organizes artifacts and data to compute policies correctly. Essentially, an instance of the handler represents an instance of the policy.
@@ -157,7 +167,7 @@ Since rules often require heterogeneous data (both on-chain and off-chain), the 
 
 Artifacts, being contracts, require clearly typed method arguments. However, the handler cannot process all types uniformly. To avoid extensive ad hoc duplications, all types SHOULD be encoded into bytes before being supplied to and returned from artifacts.
 
-This approach allows each variable or result of an artifact to be processed as bytes by both the handler and off-chain code, significantly simplifying implementation.
+This approach allows each variable or result of an artifact to be processed as bytes by both the handler and off-chain code, significantly simplifying implementation. The "all bytes" approach provides a unified method for data transfer regardless of the underlying type, resolving heterogeneous data handling challenges.
 
 ### Artifact dataflow traits
 
@@ -189,6 +199,8 @@ function init(bytes memory data) external override {
         .decode(data, (bool, address, bytes, uint256, string));
 }
 ```
+
+This clear separation between initialization and execution enhances reusability, allowing artifacts to be configured once and then executed multiple times with different inputs.
 
 ### External compliance traits
 
@@ -222,7 +234,7 @@ function getExecDescriptor()
 }
 ```
 
-This separation of concerns allows both human users and automated systems to properly interact with artifacts, supporting both manual integration and programmatic composition of policies.
+This separation of concerns allows both human users and automated systems to properly interact with artifacts, supporting both manual integration and programmatic composition of policies. These descriptive capabilities make policies more transparent and easier to work with, solving discoverability and comprehension challenges.
 
 ### Handler Architecture Considerations
 
@@ -243,9 +255,11 @@ The graph-based architecture imposes several important constraints:
 
 3. **Connectivity requirement**: Only nodes connected (directly or indirectly) to the root node will be traversed during evaluation. Graphs with disconnected nodes or subgraphs will be rejected during policy creation stage.
 
+These architectural considerations provide a structured approach to policy definition while clearly communicating implementation constraints, making complex, composable rules more manageable.
+
 ## Test Cases
 
-Test cases for this standard are included in the [reference implementation repository](../assets/erc-draft_composite_policy/test//TODO). They demonstrate:
+Test cases for this standard are included in the [reference implementation repository](https://github.com/GuardianLabs/policy-sdk/tree/dev/packages). They demonstrate:
 
 1. Creation and initialization of artifacts
 2. Construction of policies from multiple artifacts
@@ -257,7 +271,7 @@ Test cases for this standard are included in the [reference implementation repos
 8. Reuse of artifacts across different policies
 9. Implementation of common policy patterns and composite structures
 
-The test suite provides comprehensive examples of how to implement, configure, and utilize the policy engine in various scenarios, serving as both verification of the standard and a learning resource for implementers.
+The test suite provides comprehensive examples of how to implement, configure, and utilize the policy engine in various scenarios, serving as both verification of the standard and a learning resource for implementers. These tests demonstrate practical solutions to real-world compliance needs.
 
 ## Backwards Compatibility
 
@@ -278,7 +292,7 @@ The reference implementation includes:
 - Example artifacts for common use cases
 - Test suite demonstrating policy composition and evaluation
 
-The implementation demonstrates how to construct robust policies from individual artifacts and how the handler seamlessly evaluates these policies within a transaction context.
+The implementation demonstrates how to construct robust policies from individual artifacts and how the handler seamlessly evaluates these policies within a transaction context. This reference implementation offers a proven, efficient solution for policy integration and composition.
 
 ### Satellite Functionality 
 
@@ -296,7 +310,7 @@ The reference implementation addresses these challenges by providing several add
 - An intermediate representation parser that enables custom policy definition approaches beyond the provided DSL
 - Client-side implementations facilitating seamless integration between off-chain systems and on-chain policies
 
-These components demonstrate how the standard can be extended to support various implementation needs while maintaining compatibility with the core specification. The approach enables significant enhancement of decentralized application capabilities, allowing both native dApps and traditional Web2 applications to leverage on-chain policy enforcement.
+These components demonstrate how the standard can be extended to support various implementation needs while maintaining compatibility with the core specification. The approach enables significant enhancement of decentralized application capabilities, allowing both native dApps and traditional Web2 applications to leverage on-chain policy enforcement. These satellite functionalities provide complete solutions rather than just interface definitions, solving integration and implementation challenges.
 
 ## Security Considerations
 
