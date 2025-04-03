@@ -12,7 +12,7 @@ requires: 1167 ?
 
 ## Abstract
 
-This proposal presents an efficient on-chain policy engine approach. Policies are decomposed into simple rules, called artifacts, and represented as a directed acyclic graph (DAG). Each DAG node is an instance of an artifact. The DAG is recursively evaluated starting from a top-tier artifact (root node), effectively processing it as a tree. The evaluation result serves as the final policy evaluation outcome.
+This proposal presents an efficient on-chain policy engine approach. Policies are decomposed into simple rules, called artifacts, and represented as interconnected entities forming logical structures. In a recommended implementation, these entities can be organized as a directed acyclic graph (DAG), where each node is an instance of an artifact. The evaluation begins with a top-tier artifact (root node) and processes through the connected structure, with the result serving as the final policy evaluation outcome.
 
 The standard defines approaches, interfaces, and conventional traits that facilitate elegant interoperability between policies and artifacts for common usage scenarios, enabling seamless implementation and consumption of any compliance scenario.
 
@@ -124,7 +124,7 @@ Other interfaces are more implicit, following conventions and approaches explain
 
 ### Policy Handler
 
-The policy handler serves as the orchestration component for artifact execution. While implementations may vary, this standard RECOMMENDS a Directed Acyclic Graph (DAG) approach as the most efficient architecture.
+The policy handler serves as the orchestration component for artifact execution. While implementations may vary, this standard RECOMMENDS a Directed Acyclic Graph (DAG) approach as the most efficient architecture (see [reference implementation](#link_on_dag_lib)).
 
 During policy initialization, the handler constructs a DAG from the specified artifacts and their configurations. Each artifact instance is initialized as needed during this phase, ensuring proper setup before policy evaluation.
 
