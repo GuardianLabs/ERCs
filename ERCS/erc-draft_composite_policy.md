@@ -359,6 +359,8 @@ No backward compatibility issues have been identified.
 
 This standard may appear associated with [ERC-2746](./erc-2746.md), but they are not intended as replacements for each other. While ERC-2746 describes a similar concept of rule perception, the current standard presents a fundamentally different approach to implementing a rule engine on-chain, with entirely distinct interfaces and mechanisms, while being simpler to apply and more powerful in usage.
 
+Separately, the graph-based composition may evoke the Rete family of rule engines. This resemblance is only structural: the standard specifies a pull-driven, acyclic one-shot evaluation of contract "artifacts", not an incremental fact-matching network with working memories, agendas, or conflict resolution. Consequently, Rete-based systems (e.g., Jess, CLIPS, Drools) will not run natively against policies defined here without an adapter or compilation layer.
+
 Main distinctive features of this standard include:
 
 1. **Distributed Architecture**: A modular approach where independent artifacts can be composed to form policies, enabling clean separation of concerns and facilitating independent development of rule components.
